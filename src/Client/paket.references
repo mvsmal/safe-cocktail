@@ -1,10 +1,10 @@
+Fable.MaterialUI
 group Client
-    FSharp.Core
-    Fable.Elmish.Debugger
-    Fable.Elmish.React
-    Fable.Elmish.HMR
-    Fable.Core
-    Fable.Remoting.Client
-    Fulma
-    Fable.FontAwesome.Free
-
+FSharp.Core
+Fable.Elmish.Debugger
+Fable.Elmish.React
+Fable.Elmish.HMR
+Fable.Core
+Fable.Remoting.Client
+Fulma
+Fable.FontAwesome.Free

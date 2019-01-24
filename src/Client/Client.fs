@@ -5,28 +5,19 @@ open Elmish.React
 
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
-open Fable.PowerPack.Fetch
+open Fable.Core.JsInterop
 
-open Thoth.Json
 
+
+open Fable.MaterialUI.Core
+open Fable.MaterialUI.Themes
+open Fable.MaterialUI.Props
+open Fable.MaterialUI
 open Shared
+open Fable.Import.React
+open Components
+open Types
 
-
-open Fulma
-
-
-// The model holds data that you want to keep track of while the application is running
-// in this case, we are keeping track of a counter
-// we mark it as optional, because initially it will not be available from the client
-// the initial value will be requested from server
-type Model = { Counter: Counter option }
-
-// The Msg type defines what events/actions can occur while the application is running
-// the state of the application changes *only* in reaction to these events
-type Msg =
-| Increment
-| Decrement
-| InitialCountLoaded of Result<Counter, exn>
 
 module Server =
 
@@ -43,14 +34,9 @@ let initialCounter = Server.api.initialCounter
 
 // defines the initial state and initial command (= side-effect) of the application
 let init () : Model * Cmd<Msg> =
-    let initialModel = { Counter = None }
-    let loadCountCmd =
-        Cmd.ofAsync
-            initialCounter
-            ()
-            (Ok >> InitialCountLoaded)
-            (Error >> InitialCountLoaded)
-    initialModel, loadCountCmd
+    let initialModel = { keyword = "" }
+
+    initialModel, []
 
 
 
@@ -58,68 +44,34 @@ let init () : Model * Cmd<Msg> =
 // It can also run side-effects (encoded as commands) like calling the server via Http.
 // these commands in turn, can dispatch messages to which the update function will react.
 let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
-    match currentModel.Counter, msg with
-    | Some counter, Increment ->
-        let nextModel = { currentModel with Counter = Some { Value = counter.Value + 1 } }
-        nextModel, Cmd.none
-    | Some counter, Decrement ->
-        let nextModel = { currentModel with Counter = Some { Value = counter.Value - 1 } }
-        nextModel, Cmd.none
-    | _, InitialCountLoaded (Ok initialCount)->
-        let nextModel = { Counter = Some initialCount }
-        nextModel, Cmd.none
+    match msg with
+    | Search -> currentModel, []
+    | KeywordChanged keyword ->
+        { currentModel with keyword = keyword }, []
 
-    | _ -> currentModel, Cmd.none
-
-
-let safeComponents =
-    let components =
-        span [ ]
-           [
-             a [ Href "https://saturnframework.github.io" ] [ str "Saturn" ]
-             str ", "
-             a [ Href "http://fable.io" ] [ str "Fable" ]
-             str ", "
-             a [ Href "https://elmish.github.io/elmish/" ] [ str "Elmish" ]
-             str ", "
-             a [ Href "https://mangelmaxime.github.io/Fulma" ] [ str "Fulma" ]
-             str ", "
-             a [ Href "https://zaid-ajaj.github.io/Fable.Remoting/" ] [ str "Fable.Remoting" ]
-           ]
-
-    p [ ]
-        [ strong [] [ str "SAFE Template" ]
-          str " powered by: "
-          components ]
-
-let show = function
-| { Counter = Some counter } -> string counter.Value
-| { Counter = None   } -> "Loading..."
-
-let button txt onClick =
-    Button.button
-        [ Button.IsFullWidth
-          Button.Color IsPrimary
-          Button.OnClick onClick ]
-        [ str txt ]
+let theme =
+    createMuiTheme [
+        Typography [
+            UseNextVariants true
+        ]
+        ThemeProp.Palette [
+            PaletteProp.Primary [
+                PaletteIntentionProp.Main Colors.grey.``900``
+            ]
+            PaletteProp.Secondary [
+                PaletteIntentionProp.Main Colors.yellow.A200
+            ]
+        ]
+    ]
 
 let view (model : Model) (dispatch : Msg -> unit) =
-    div []
-        [ Navbar.navbar [ Navbar.Color IsPrimary ]
-            [ Navbar.Item.div [ ]
-                [ Heading.h2 [ ]
-                    [ str "SAFE Template" ] ] ]
+    muiThemeProvider [MuiThemeProviderProp.Theme (ProviderTheme.Theme theme) ] [
+        div [] [
+            myAppBar () ignore
+            searchBox model dispatch
+        ]
+    ]
 
-          Container.container []
-              [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
-                    [ Heading.h3 [] [ str ("Press buttons to manipulate counter: " + show model) ] ]
-                Columns.columns []
-                    [ Column.column [] [ button "-" (fun _ -> dispatch Decrement) ]
-                      Column.column [] [ button "+" (fun _ -> dispatch Increment) ] ] ]
-
-          Footer.footer [ ]
-                [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
-                    [ safeComponents ] ] ]
 
 #if DEBUG
 open Elmish.Debug
