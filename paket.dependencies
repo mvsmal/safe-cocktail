@@ -1,6 +1,5 @@
 source https://www.nuget.org/api/v2
 
-nuget Fable.MaterialUI
 group Server
     source https://api.nuget.org/v3/index.json
     framework: netcoreapp2.2
@@ -9,12 +8,14 @@ group Server
     nuget FSharp.Core
     nuget Saturn
     nuget Fable.Remoting.Giraffe
+    nuget FSharp.Data
 
 group Client
     source https://api.nuget.org/v3/index.json
     framework: netstandard2.0
     storage: none
 
+nuget Elmish.Toastr
     nuget Fable.Core ~> 2
     nuget Fable.Elmish ~> 2
     nuget Fable.Elmish.Debugger ~> 2
@@ -22,8 +23,7 @@ group Client
     nuget Fable.Elmish.HMR ~> 2
     nuget Fable.React ~> 4
     nuget Fable.Remoting.Client ~> 4
-    nuget Fulma
-    nuget Fable.FontAwesome.Free
+    nuget Fable.MaterialUI
 
 group Build
     source https://api.nuget.org/v3/index.json

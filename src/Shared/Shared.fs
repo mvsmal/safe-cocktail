@@ -1,13 +1,29 @@
 namespace Shared
 
-type Counter = { Value : int }
+type Cocktail =
+    { Id : int
+      Name : string
+      Image : string }
+
+type Ingredient =
+    { Name : string
+      Measure : string
+      Image : string }
+
+type CocktailDetails =
+    { Id : int
+      Name : string
+      Image : string
+      Category : string
+      Alchogolic : string
+      Glass : string
+      Instructions : string
+      Ingredients : Ingredient list }
 
 module Route =
-    /// Defines how routes are generated on server and mapped from client
     let builder typeName methodName =
         sprintf "/api/%s/%s" typeName methodName
 
-/// A type that specifies the communication protocol between client and server
-/// to learn more, read the docs at https://zaid-ajaj.github.io/Fable.Remoting/src/basics.html
-type ICounterApi =
-    { initialCounter : unit -> Async<Counter> }
+type CocktailApi =
+    { search : string -> Async<Result<Cocktail list, string>>
+      details : int -> Async<Result<CocktailDetails option, string>> }

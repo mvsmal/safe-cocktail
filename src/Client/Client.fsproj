@@ -5,6 +5,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="..\Shared\Shared.fs" />
+        <Compile Include="Toast.fs" />
         <Compile Include="Types.fs" />
         <Compile Include="Components.fs" />
         <Compile Include="Client.fs" />
