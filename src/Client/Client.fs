@@ -17,7 +17,6 @@ open Types
 
 module Server =
 
-    open Shared
     open Fable.Remoting.Client
 
     let api : CocktailApi =
@@ -53,8 +52,6 @@ let urlUpdate (result : Page option) model =
 
         { model with currentPage = page }, cmd page
 
-
-
 let init result =
     let (model, cmd) =
         urlUpdate result
@@ -79,8 +76,9 @@ let searchCmd keyword =
 
 let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     match msg with
-    | Search -> currentModel, Cmd.batch [ searchCmd currentModel.keyword
-                                          Cmd.ofMsg (Load true) ]
+    | Search ->
+        currentModel, Cmd.batch [ searchCmd currentModel.keyword
+                                  Cmd.ofMsg (Load true) ]
     | KeywordChanged keyword ->
         { currentModel with keyword = keyword }, []
     | SearchSuccess cocktails ->
