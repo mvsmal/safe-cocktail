@@ -31,23 +31,13 @@ let pageParser : Parser<Page->Page,Page> =
         map Page.Cocktail (s "cocktail" </> i32)
     ]
 
-let loadCocktailDetails id =
-    async {
-        match! Server.api.details id with
-        | Ok details -> return details
-        | Result.Error e -> return failwith e
-    }
-
-let loadDetailsCmd id =
-    Cmd.ofAsync loadCocktailDetails id CocktailDetailsSuccess Failure
-
 let urlUpdate (result : Page option) model =
     match result with
     | None ->
         model,Navigation.newUrl (toHash Page.Search)
     | Some page ->
         let cmd = function
-            | Cocktail id -> loadDetailsCmd id
+            | Page.Cocktail id -> Cmd.ofMsg (LoadCocktailDetails id)
             | _ -> Cmd.none
 
         { model with currentPage = page }, cmd page
@@ -65,26 +55,29 @@ let init result =
 
 let searchCocktail keyword =
     async {
-        let! result = Server.api.search keyword
-        match result with
+        match! Server.api.search keyword with
         | Ok cocktails -> return cocktails
         | Result.Error e -> return failwith e
     }
 
-let searchCmd keyword =
-    Cmd.ofAsync searchCocktail keyword SearchSuccess Failure
+let loadCocktailDetails id =
+    async {
+        match! Server.api.details id with
+        | Ok details -> return details
+        | Result.Error e -> return failwith e
+    }
 
 let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
     match msg with
     | Search ->
-        currentModel, Cmd.batch [ searchCmd currentModel.keyword
+        currentModel, Cmd.batch [ Cmd.ofAsync searchCocktail currentModel.keyword SearchSuccess Failure
                                   Cmd.ofMsg (Load true) ]
     | KeywordChanged keyword ->
         { currentModel with keyword = keyword }, []
     | SearchSuccess cocktails ->
         { currentModel with cocktails = cocktails }, Cmd.ofMsg (Load false)
     | LoadCocktailDetails id ->
-        currentModel, Cmd.batch [ loadDetailsCmd id
+        currentModel, Cmd.batch [ Cmd.ofAsync loadCocktailDetails id CocktailDetailsSuccess Failure
                                   Cmd.ofMsg (Load true) ]
     | CocktailDetailsSuccess details ->
         { currentModel with cocktailDetails = details }, Cmd.ofMsg (Load false)
