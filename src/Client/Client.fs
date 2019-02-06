@@ -73,7 +73,7 @@ let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
         currentModel, Cmd.batch [ Cmd.ofAsync searchCocktail currentModel.keyword SearchSuccess Failure
                                   Cmd.ofMsg (Load true) ]
     | KeywordChanged keyword ->
-        { currentModel with keyword = keyword }, []
+        { currentModel with keyword = keyword }, Cmd.none
     | SearchSuccess cocktails ->
         { currentModel with cocktails = cocktails }, Cmd.ofMsg (Load false)
     | LoadCocktailDetails id ->
